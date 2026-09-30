@@ -21,7 +21,7 @@ export default function Navbar() {
 
   return <header className="sticky top-0 z-40 border-b border-[#eadde2] bg-[#fff8f5]/90 backdrop-blur-xl">
     <div className="page-shell flex min-h-[74px] items-center justify-between gap-5">
-      <Link to="/" onClick={() => setOpen(false)} className="font-display text-[29px] font-semibold tracking-[-0.05em]">cake<span className="text-[#d98daa]">.</span></Link>
+      <Link to="/" onClick={() => setOpen(false)} className="font-display text-[29px] font-semibold tracking-[-0.05em]">cakette<span className="text-[#d98daa]">.</span></Link>
       <nav className="hidden items-center gap-7 lg:flex">{navItems.map(item=><NavLink key={item.to} to={item.to} className={({isActive})=>`text-sm transition ${isActive?"font-bold text-[#a05f7b]":"text-[#493d4f] hover:text-[#a05f7b]"}`}>{item.label}</NavLink>)}</nav>
       <div className="flex items-center gap-2">
         {user ? <div className="hidden items-center gap-2 sm:flex"><Link to="/profile" className="rounded-full border border-[#e4d6dd] bg-[#fffdfb] px-4 py-2 text-xs font-bold">{userName || "Profile"}</Link><button onClick={requestLogout} className="px-2 text-xs font-bold text-[#786a76]">Log out</button></div> : <Link to="/login" className="hidden rounded-full border border-[#e4d6dd] bg-[#fffdfb] px-4 py-2 text-xs font-bold sm:inline-flex">Log in</Link>}

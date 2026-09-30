@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/dev.mjs",
+    "dev": "vite",
     "dev:client": "vite",
     "server": "node server/server.js",
     "build": "tsc -b && vite build",

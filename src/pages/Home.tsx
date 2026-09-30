@@ -46,7 +46,7 @@ export default function Home() {
             <div className="absolute right-[11%] top-[26%] h-3 w-3 rounded-full bg-[#a99ad9]" />
             <div className="absolute bottom-[15%] left-[17%] h-2 w-2 rounded-full bg-[#d98daa]" />
             <div className="relative z-10 w-[270px] rotate-[-3deg] rounded-[30px] border border-white/70 bg-[#fffdfb]/85 p-7 text-center shadow-[0_25px_70px_rgba(72,45,64,.10)] backdrop-blur-md">
-              <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#b45f7e]">CakeCraft studio</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#b45f7e]">Cakette studio</p>
               <p className="mt-4 font-display text-4xl leading-tight">made around your moment</p>
               <div className="mx-auto mt-5 h-px w-14 bg-[#d98daa]" />
               <p className="mt-4 text-xs leading-5 text-[#786a76]">Choose a base. Add your details. Let the celebration take shape.</p>
@@ -114,7 +114,7 @@ export default function Home() {
       <section className="py-20 md:py-24">
         <div className="page-shell">
           <div className="max-w-2xl">
-            <p className="section-label">THE CAKECRAFT FLOW</p>
+            <p className="section-label">THE CAKETTE FLOW</p>
             <h2 className="mt-3 font-display text-4xl md:text-5xl">Simple from idea to pickup.</h2>
             <p className="mt-4 text-sm leading-6 text-[#786a76]">The system handles the details that normally make custom ordering feel complicated.</p>
           </div>

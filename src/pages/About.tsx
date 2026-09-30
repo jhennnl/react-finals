@@ -25,9 +25,9 @@ export default function About() {
     <section className="py-14 md:py-16">
       <div className="page-shell">
         <SectionHeading
-          eyebrow="HOW CAKECRAFT WORKS"
+          eyebrow="HOW CAKETTE WORKS"
           title="Less guessing. More designing."
-          description="CakeCraft is built around the part of custom cake ordering that needs the most attention: choosing details, understanding the price, finding an available date, and keeping track of the order."
+          description="Cakette is built around the part of custom cake ordering that needs the most attention: choosing details, understanding the price, finding an available date, and keeping track of the order."
         />
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
