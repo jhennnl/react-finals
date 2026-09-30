@@ -44,4 +44,10 @@ export type Order = {
   total: number;
   status: "Pending" | "Confirmed" | "In Production" | "Ready for Pickup" | "Completed" | "Cancelled";
   image: string;
+  cakeId?: string;
+  subtotal?: number;
+  discount?: number;
+  promoCode?: string;
+  specialInstructions?: string;
+  createdAt?: string;
 };

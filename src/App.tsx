@@ -16,6 +16,7 @@ import Promotions from "./pages/Promotions";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import RequireAuth from "./components/RequireAuth";
 
 export default function App() {
   return (
@@ -27,12 +28,12 @@ export default function App() {
           <Route path="/cakes/:id" element={<CakeDetails />} />
           <Route path="/customize" element={<Customize />} />
           <Route path="/pickup" element={<PickupAvailability />} />
-          <Route path="/summary" element={<OrderSummary />} />
-          <Route path="/confirmation" element={<Confirmation />} />
-          <Route path="/orders" element={<MyOrders />} />
-          <Route path="/orders/:id" element={<OrderDetails />} />
-          <Route path="/history" element={<OrderHistory />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/summary" element={<RequireAuth><OrderSummary /></RequireAuth>} />
+          <Route path="/confirmation" element={<RequireAuth><Confirmation /></RequireAuth>} />
+          <Route path="/orders" element={<RequireAuth><MyOrders /></RequireAuth>} />
+          <Route path="/orders/:id" element={<RequireAuth><OrderDetails /></RequireAuth>} />
+          <Route path="/history" element={<RequireAuth><OrderHistory /></RequireAuth>} />
+          <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="/about" element={<About />} />
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/login" element={<Login />} />

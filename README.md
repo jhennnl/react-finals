@@ -1,6 +1,6 @@
 # CakeCraft Frontend
 
-Soft Y2K-inspired custom cake planning and ordering frontend built with React, TypeScript, Vite, Tailwind CSS, React Router, React Hook Form, Zod, and Axios.
+Soft Y2K-inspired custom cake shop built with React, TypeScript, Vite, Tailwind CSS, React Router, React Hook Form, Zod, Axios, and a small Node API.
 
 ## Current frontend features
 
@@ -18,9 +18,11 @@ Soft Y2K-inspired custom cake planning and ordering frontend built with React, T
 - Order confirmation and order history screens
 - Profile page
 - Login, registration, and forgot-password UI
-- LocalStorage demo account state until the Express authentication API is connected
-- React Hook Form + Zod validation
-- Central Axios instance for the future Express API
+- Persistent account registration and login with salted password hashes
+- Token-authenticated profile updates, order placement, order tracking, and cancellation
+- Server-side price and promotion validation
+- Live pickup capacity that updates after each order
+- Reusable confirmation and success modals for account, checkout, profile, cancellation, and logout actions
 - Responsive mobile navigation
 
 ## Add your cake images
@@ -59,6 +61,6 @@ npm install
 npm run dev
 ```
 
-## Next backend connection
+`npm run dev` starts the CakeCraft API on port 8000 and the Vite client together. The API persists shop data to `server/store.json`, which is intentionally ignored by Git.
 
-The frontend is intentionally using local sample data while the UI is being completed. The next phase can connect the same pages to the Express REST API and MongoDB collections for cakes, customers, orders, production slots, promotions, and users.
+For a production deployment, replace the file-backed store and in-memory sessions with a database, durable session or JWT strategy, an email provider for password resets, and payment processing.
