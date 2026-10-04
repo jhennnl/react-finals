@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -54,7 +55,18 @@ app.use((req, res, next) => {
 app.use(requestLogger);
 
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", service: "cakette-api" });
+  const dbState = mongoose.connection.readyState;
+  const dbStatus =
+    dbState === 1 ? "connected" : dbState === 2 ? "connecting" : dbState === 3 ? "disconnecting" : "disconnected";
+
+  res.json({
+    status: dbState === 1 ? "ok" : "degraded",
+    service: "cakette-api",
+    database: {
+      status: dbStatus,
+      mode: isUsingMemoryMongo() ? "memory" : "atlas-or-local",
+    },
+  });
 });
 
 app.use("/api/auth", authRouter);

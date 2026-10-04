@@ -198,5 +198,5 @@ More captures live in [`docs/screenshots/`](docs/screenshots/).
 
 | Member | Contributions |
 | --- | --- |
-| Merner Magtoto | Backend API, Mongoose models, seed data, processing endpoints |
+| Merner Magtoto | Backend API, Mongoose models, seed data, processing endpoints, health/db checks |
 | Jhenile Feliciano | React UI, forms, routing, Tailwind design, client API integration |
