@@ -1,31 +1,13 @@
 {
-  "name": "cakecraft-frontend",
+  "name": "cakette",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "description": "cakette full-stack finals project (client + server)",
   "scripts": {
-    "dev": "vite",
-    "dev:client": "vite",
-    "server": "node server/server.js",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "axios": "^1.12.2",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-hook-form": "^7.62.0",
-    "react-router-dom": "^7.9.1",
-    "zod": "^4.1.8",
-    "@hookform/resolvers": "^5.2.1"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.13",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react": "^5.0.3",
-    "tailwindcss": "^4.1.13",
-    "typescript": "~5.9.2",
-    "vite": "^7.1.7"
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "seed": "npm run seed --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client"
   }
 }

@@ -1,0 +1,25 @@
+import axios from "axios";
+
+export const api = axios.create({
+  // Prefer same-origin /api (Vite proxy) so dashboard metrics are not blocked by CORS.
+  baseURL: import.meta.env.VITE_API_URL || "/api",
+  timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-cache",
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("cakecraftToken");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export const getApiError = (error: unknown, fallback = "Something went wrong. Please try again.") => {
+  if (!axios.isAxiosError(error)) return fallback;
+  if (error.code === "ECONNABORTED") return "Request timed out. Is the API running on port 8000?";
+  if (error.code === "ERR_NETWORK") return "Cannot reach the API. Check that the server is running.";
+  const message = error.response?.data?.message;
+  return typeof message === "string" && message.trim() ? message : fallback;
+};
