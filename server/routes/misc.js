@@ -5,6 +5,7 @@ import Customer from "../models/Customer.js";
 import Promotion from "../models/Promotion.js";
 import Review from "../models/Review.js";
 import { dailyPickupSlots } from "../utils/pricing.js";
+import { requireAdmin, requireAuth } from "../utils/auth.js";
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.get("/pickup-slots", async (req, res, next) => {
   }
 });
 
-router.get("/dashboard/overview", async (req, res, next) => {
+router.get("/dashboard/overview", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const [cakeCount, customerCount, orderCount, promoCount, reviewCount, orders, cakes] =
       await Promise.all([

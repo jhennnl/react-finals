@@ -4,7 +4,7 @@ import Customer from "../models/Customer.js";
 import Order from "../models/Order.js";
 import Promotion from "../models/Promotion.js";
 import { createError, isValidObjectId } from "../middleware/errorHandler.js";
-import { requireAuth } from "../utils/auth.js";
+import { requireAdmin, requireAuth } from "../utils/auth.js";
 import {
   calculateQuote,
   canTransition,
@@ -54,7 +54,7 @@ function nextOrderCode() {
   return `CC-${String(Date.now()).slice(-6)}`;
 }
 
-router.get("/stats/summary", async (req, res, next) => {
+router.get("/stats/summary", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const orders = await Order.find();
     const byStatus = {};
@@ -137,7 +137,7 @@ router.get("/me", requireAuth, async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const { status, customerId, from, to } = req.query;
     const filter = {};
@@ -158,7 +158,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", requireAuth, async (req, res, next) => {
   try {
     let order = null;
     if (isValidObjectId(req.params.id)) {
@@ -167,7 +167,9 @@ router.get("/:id", async (req, res, next) => {
     if (!order) {
       order = await Order.findOne({ orderCode: req.params.id });
     }
-    if (!order) throw createError(404, "Order not found");
+    if (!order || (String(order.customer) !== String(req.customer._id) && req.customer.role !== "admin")) {
+      throw createError(404, "Order not found");
+    }
     res.json({ order: formatOrder(order) });
   } catch (error) {
     next(error);
@@ -235,7 +237,7 @@ router.post("/", requireAuth, async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const order = isValidObjectId(req.params.id)
       ? await Order.findById(req.params.id)
@@ -271,7 +273,7 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-router.patch("/:id/status", async (req, res, next) => {
+router.patch("/:id/status", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const { status } = req.body;
     if (!status) throw createError(400, "Status is required");
@@ -320,7 +322,7 @@ router.patch("/:id/cancel", requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const order = isValidObjectId(req.params.id)
       ? await Order.findById(req.params.id)

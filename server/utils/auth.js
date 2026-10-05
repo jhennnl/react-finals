@@ -56,6 +56,16 @@ export async function requireAuth(req, res, next) {
   }
 }
 
+export function requireAdmin(req, res, next) {
+  if (!req.customer) {
+    return next(createError(401, "Please log in to continue."));
+  }
+  if (req.customer.role !== "admin") {
+    return next(createError(403, "Admin access is required."));
+  }
+  next();
+}
+
 export function optionalAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";

@@ -3,22 +3,21 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 import { useModal } from "./Modal";
 
-const navItems = [
-  { label: "Home", to: "/" },
-  { label: "Cakes", to: "/cakes" },
-  { label: "Offers", to: "/promotions" },
-  { label: "Reviews", to: "/reviews" },
-  { label: "Studio", to: "/dashboard" },
-  { label: "My Orders", to: "/orders" },
-  { label: "About", to: "/about" },
-];
-
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { show } = useModal();
   const userName = user?.name ?? "";
+  const navItems = [
+    { label: "Home", to: "/" },
+    { label: "Cakes", to: "/cakes" },
+    { label: "Offers", to: "/promotions" },
+    { label: "Reviews", to: "/reviews" },
+    ...(user?.role === "admin" ? [{ label: "Studio", to: "/dashboard" }] : []),
+    { label: "My Orders", to: "/orders" },
+    { label: "About", to: "/about" },
+  ];
   const requestLogout = () => show({ title: "Log out?", message: "You can log back in at any time to see your saved orders and profile.", confirmLabel: "Log out", onConfirm: () => { logout(); navigate("/"); } });
 
   return <header className="sticky top-0 z-40 border-b border-[#eadde2] bg-[#fff8f5]/90 backdrop-blur-xl">

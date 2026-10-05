@@ -21,6 +21,7 @@ import ManageCakes from "./pages/ManageCakes";
 import ManagePromotions from "./pages/ManagePromotions";
 import Reviews from "./pages/Reviews";
 import RequireAuth from "./components/RequireAuth";
+import RequireAdmin from "./components/RequireAdmin";
 
 export default function App() {
   return (
@@ -38,9 +39,9 @@ export default function App() {
           <Route path="/orders/:id" element={<RequireAuth><OrderDetails /></RequireAuth>} />
           <Route path="/history" element={<RequireAuth><OrderHistory /></RequireAuth>} />
           <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/manage/cakes" element={<ManageCakes />} />
-          <Route path="/manage/promotions" element={<ManagePromotions />} />
+          <Route path="/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+          <Route path="/manage/cakes" element={<RequireAdmin><ManageCakes /></RequireAdmin>} />
+          <Route path="/manage/promotions" element={<RequireAdmin><ManagePromotions /></RequireAdmin>} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/about" element={<About />} />
           <Route path="/promotions" element={<Promotions />} />

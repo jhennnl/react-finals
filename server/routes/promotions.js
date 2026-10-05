@@ -1,6 +1,7 @@
 import { Router } from "express";
 import Promotion from "../models/Promotion.js";
 import { createError, isValidObjectId } from "../middleware/errorHandler.js";
+import { requireAdmin, requireAuth } from "../utils/auth.js";
 
 const router = Router();
 
@@ -88,7 +89,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const promo = await Promotion.create(req.body);
     res.status(201).json({ promotion: formatPromo(promo) });
@@ -97,7 +98,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     if (!isValidObjectId(req.params.id)) throw createError(400, "Invalid id");
     const promo = await Promotion.findByIdAndUpdate(req.params.id, req.body, {
@@ -111,7 +112,7 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     if (!isValidObjectId(req.params.id)) throw createError(400, "Invalid id");
     const promo = await Promotion.findByIdAndDelete(req.params.id);

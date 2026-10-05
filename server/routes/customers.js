@@ -2,9 +2,11 @@ import { Router } from "express";
 import Customer from "../models/Customer.js";
 import Order from "../models/Order.js";
 import { createError, isValidObjectId } from "../middleware/errorHandler.js";
-import { hashPassword, customerView } from "../utils/auth.js";
+import { hashPassword, customerView, requireAdmin, requireAuth } from "../utils/auth.js";
 
 const router = Router();
+
+router.use(requireAuth, requireAdmin);
 
 router.get("/", async (req, res, next) => {
   try {

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "./api";
 
-export type User = { id: string; name: string; email: string; phone: string };
+export type User = { id: string; name: string; email: string; phone: string; role: "customer" | "admin" };
 type Credentials = { email: string; password: string };
 type Registration = Credentials & { name: string };
 type AuthContextValue = { user: User | null; ready: boolean; login: (data: Credentials) => Promise<void>; register: (data: Registration) => Promise<void>; logout: () => void; updateUser: (user: User) => void };

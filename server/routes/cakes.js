@@ -2,6 +2,7 @@ import { Router } from "express";
 import Cake from "../models/Cake.js";
 import Order from "../models/Order.js";
 import { createError, isValidObjectId } from "../middleware/errorHandler.js";
+import { requireAdmin, requireAuth } from "../utils/auth.js";
 
 const router = Router();
 
@@ -24,7 +25,7 @@ function formatCake(cake) {
   };
 }
 
-router.get("/stats/summary", async (req, res, next) => {
+router.get("/stats/summary", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const cakes = await Cake.find();
     const byCategory = {};
@@ -107,7 +108,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const cake = await Cake.create(req.body);
     res.status(201).json({ cake: formatCake(cake) });
@@ -116,7 +117,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     if (!isValidObjectId(req.params.id)) throw createError(400, "Invalid id");
     const cake = await Cake.findByIdAndUpdate(req.params.id, req.body, {
@@ -130,7 +131,7 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", requireAuth, requireAdmin, async (req, res, next) => {
   try {
     if (!isValidObjectId(req.params.id)) throw createError(400, "Invalid id");
     const activeOrders = await Order.countDocuments({
