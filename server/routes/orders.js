@@ -300,7 +300,9 @@ router.patch("/:id/cancel", requireAuth, async (req, res, next) => {
     const order = isValidObjectId(req.params.id)
       ? await Order.findById(req.params.id)
       : await Order.findOne({ orderCode: req.params.id });
-    if (!order || String(order.customer) !== String(req.customer._id)) {
+    const isOwner = order && String(order.customer) === String(req.customer._id);
+    const isAdmin = req.customer.role === "admin";
+    if (!order || (!isOwner && !isAdmin)) {
       throw createError(404, "Order not found");
     }
     if (!["Pending", "Confirmed"].includes(order.status)) {

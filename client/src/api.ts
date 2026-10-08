@@ -10,11 +10,39 @@ export const api = axios.create({
   },
 });
 
+const TOKEN_KEY = "cakecraftToken";
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  onUnauthorized = handler;
+}
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("cakecraftToken");
+  const token = localStorage.getItem(TOKEN_KEY);
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const url = String(error?.config?.url || "");
+    const isAuthAttempt =
+      url.includes("/auth/login") ||
+      url.includes("/auth/register") ||
+      url.includes("/auth/forgot-password") ||
+      url.includes("/auth/reset-password") ||
+      url.includes("/auth/logout");
+
+    if (status === 401 && !isAuthAttempt) {
+      localStorage.removeItem(TOKEN_KEY);
+      onUnauthorized?.();
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export const getApiError = (error: unknown, fallback = "Something went wrong. Please try again.") => {
   if (!axios.isAxiosError(error)) return fallback;

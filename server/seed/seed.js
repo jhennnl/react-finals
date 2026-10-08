@@ -5,6 +5,7 @@ import Customer from "../models/Customer.js";
 import Order from "../models/Order.js";
 import Promotion from "../models/Promotion.js";
 import Review from "../models/Review.js";
+import Session from "../models/Session.js";
 import { hashPassword } from "../utils/auth.js";
 import { calculateQuote } from "../utils/pricing.js";
 import { connectMongo, isUsingMemoryMongo, stopMemoryServer } from "../utils/mongo.js";
@@ -44,6 +45,7 @@ export async function seedDatabase() {
     Order.deleteMany({}),
     Promotion.deleteMany({}),
     Review.deleteMany({}),
+    Session.deleteMany({}),
   ]);
 
   const createdCakes = await Cake.insertMany(cakes);

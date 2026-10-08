@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { api, getApiError } from "../api";
+import { useAuth } from "../auth";
 import type { Order } from "../types";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -7,17 +9,20 @@ import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function OrderHistory() {
   usePageTitle("Order History");
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!user) return;
     api
-      .get("/orders/me")
+      .get(isAdmin ? "/orders" : "/orders/me")
       .then(({ data }) => setOrders(data.orders))
       .catch((err) => setError(getApiError(err, "We couldn't load your order history.")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user, isAdmin]);
 
   const completed = useMemo(() => orders.filter((o) => o.status === "Completed"), [orders]);
   const totalSpent = completed.reduce((sum, o) => sum + o.total, 0);
@@ -58,7 +63,11 @@ export default function OrderHistory() {
               <div className="mt-6 divide-y divide-[#eadde2]">
                 {completed.length ? (
                   completed.map((order) => (
-                    <div key={order.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
+                    <Link
+                      key={order.id}
+                      to={`/orders/${order.id}`}
+                      className="flex flex-wrap items-center justify-between gap-3 py-4 transition hover:opacity-80"
+                    >
                       <div>
                         <p className="font-bold">{order.cakeName}</p>
                         <p className="mt-1 text-xs text-[#786a76]">
@@ -66,7 +75,7 @@ export default function OrderHistory() {
                         </p>
                       </div>
                       <p className="font-bold">₱{order.total.toLocaleString()}</p>
-                    </div>
+                    </Link>
                   ))
                 ) : (
                   <p className="py-5 text-sm text-[#786a76]">Completed orders will appear here after pickup.</p>

@@ -1,8 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import Customer from "../models/Customer.js";
+import Session from "../models/Session.js";
 import { createError } from "../middleware/errorHandler.js";
-
-const sessions = new Map();
 
 export function hashPassword(password) {
   const salt = randomBytes(16).toString("hex");
@@ -19,10 +18,15 @@ export function passwordMatches(password, stored) {
   }
 }
 
-export function issueToken(customerId) {
+export async function issueToken(customerId) {
   const token = randomBytes(32).toString("hex");
-  sessions.set(token, String(customerId));
+  await Session.create({ token, customer: customerId });
   return token;
+}
+
+export async function revokeToken(token) {
+  if (!token) return;
+  await Session.deleteOne({ token });
 }
 
 export function customerView(customer) {
@@ -36,15 +40,18 @@ export function customerView(customer) {
   };
 }
 
+async function customerFromToken(token) {
+  if (!token) return null;
+  const session = await Session.findOne({ token });
+  if (!session) return null;
+  return Customer.findById(session.customer);
+}
+
 export async function requireAuth(req, res, next) {
   try {
     const header = req.headers.authorization || "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-    const customerId = token ? sessions.get(token) : null;
-    if (!customerId) {
-      throw createError(401, "Please log in to continue.");
-    }
-    const customer = await Customer.findById(customerId);
+    const customer = await customerFromToken(token);
     if (!customer) {
       throw createError(401, "Please log in to continue.");
     }
@@ -69,11 +76,13 @@ export function requireAdmin(req, res, next) {
 export function optionalAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-  const customerId = token ? sessions.get(token) : null;
-  if (!customerId) return next();
-  Customer.findById(customerId)
+  if (!token) return next();
+  customerFromToken(token)
     .then((customer) => {
-      if (customer) req.customer = customer;
+      if (customer) {
+        req.customer = customer;
+        req.token = token;
+      }
       next();
     })
     .catch(next);

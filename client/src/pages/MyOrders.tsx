@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, getApiError } from "../api";
+import { useAuth } from "../auth";
 import { useCakes } from "../hooks/useCakes";
 import type { Order } from "../types";
 import StatusBadge from "../components/StatusBadge";
@@ -12,7 +13,9 @@ import { usePageTitle } from "../hooks/usePageTitle";
 const filters = ["All", "Pending", "Confirmed", "In Production", "Ready for Pickup", "Completed", "Cancelled"];
 
 export default function MyOrders() {
-  usePageTitle("My Orders");
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  usePageTitle(isAdmin ? "Shop Orders" : "My Orders");
   const { cakes } = useCakes();
   const [filter, setFilter] = useState("All");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -20,12 +23,14 @@ export default function MyOrders() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!user) return;
+    setLoading(true);
     api
-      .get("/orders/me")
+      .get(isAdmin ? "/orders" : "/orders/me")
       .then(({ data }) => setOrders(data.orders))
       .catch((e) => setError(getApiError(e, "We couldn't load your orders.")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user, isAdmin]);
 
   const filtered = useMemo(
     () => orders.filter((order) => filter === "All" || order.status === filter),
@@ -35,11 +40,22 @@ export default function MyOrders() {
   return (
     <section className="py-14">
       <div className="page-shell">
-        <SectionHeading
-          eyebrow="YOUR CAKE ORDERS"
-          title="Keep track of every order."
-          description="View your upcoming pickups, current production status, and past orders."
-        />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading
+            eyebrow={isAdmin ? "STUDIO ORDERS" : "YOUR CAKE ORDERS"}
+            title={isAdmin ? "Every order in the shop." : "Keep track of every order."}
+            description={
+              isAdmin
+                ? "Customer orders land here in real time. Open any order to advance production status."
+                : "View your upcoming pickups, current production status, and past orders."
+            }
+          />
+          {!isAdmin && (
+            <Link to="/history" className="text-sm font-bold text-[#a05f7b]">
+              Order history →
+            </Link>
+          )}
+        </div>
         <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
           {filters.map((item) => (
             <button

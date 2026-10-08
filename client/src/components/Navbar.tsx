@@ -1,22 +1,51 @@
-import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../api";
 import { useAuth } from "../auth";
+import type { Order } from "../types";
 import { useModal } from "./Modal";
+
+const ACTIVE_STATUSES = new Set(["Pending", "Confirmed", "In Production", "Ready for Pickup"]);
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [activeOrderCount, setActiveOrderCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const { show } = useModal();
   const userName = user?.name ?? "";
 
-  const navItems = [
+  useEffect(() => {
+    if (!user) {
+      setActiveOrderCount(0);
+      return;
+    }
+
+    const controller = new AbortController();
+    api
+      .get<{ orders: Order[] }>(user.role === "admin" ? "/orders" : "/orders/me", {
+        signal: controller.signal,
+      })
+      .then(({ data }) => {
+        setActiveOrderCount(
+          data.orders.filter((order) => ACTIVE_STATUSES.has(order.status)).length
+        );
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setActiveOrderCount(0);
+      });
+
+    return () => controller.abort();
+  }, [user, location.pathname]);
+
+  const navItems: { label: string; to: string; badge?: number }[] = [
     { label: "Home", to: "/" },
     { label: "Cakes", to: "/cakes" },
     { label: "Offers", to: "/promotions" },
     { label: "Reviews", to: "/reviews" },
     ...(user?.role === "admin" ? [{ label: "Studio", to: "/dashboard" }] : []),
-    { label: "My Orders", to: "/orders" },
+    { label: "My Orders", to: "/orders", badge: activeOrderCount },
     { label: "About", to: "/about" },
   ];
 
@@ -55,7 +84,14 @@ export default function Navbar() {
         <nav className="hidden items-center gap-7 lg:flex">
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={desktopLinkClass}>
-              {item.label}
+              <span className="inline-flex items-center gap-1.5">
+                {item.label}
+                {item.badge && item.badge > 0 ? (
+                  <span className="inline-flex min-h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-[#493d4f] px-1.5 text-[10px] font-bold leading-none text-white">
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                ) : null}
+              </span>
             </NavLink>
           ))}
         </nav>
@@ -106,7 +142,14 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className={mobileLinkClass}
               >
-                {item.label}
+                <span className="inline-flex items-center gap-1.5">
+                  {item.label}
+                  {item.badge && item.badge > 0 ? (
+                    <span className="inline-flex min-h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-[#493d4f] px-1.5 text-[10px] font-bold leading-none text-white">
+                      {item.badge > 9 ? "9+" : item.badge}
+                    </span>
+                  ) : null}
+                </span>
               </NavLink>
             ))}
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { api } from "./api";
+import { api, setUnauthorizedHandler } from "./api";
 
 export type User = {
   id: string;
@@ -35,6 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    setUnauthorizedHandler(() => setUser(null));
+    return () => setUnauthorizedHandler(null);
+  }, []);
+
+  useEffect(() => {
     const restore = async () => {
       if (!localStorage.getItem(TOKEN_KEY)) {
         setReady(true);
@@ -46,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user);
       } catch {
         localStorage.removeItem(TOKEN_KEY);
+        setUser(null);
       } finally {
         setReady(true);
       }
@@ -71,6 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accept(response.data);
     },
     logout: () => {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) {
+        void api
+          .post("/auth/logout", null, { headers: { Authorization: `Bearer ${token}` } })
+          .catch(() => undefined);
+      }
       localStorage.removeItem(TOKEN_KEY);
       setUser(null);
     },

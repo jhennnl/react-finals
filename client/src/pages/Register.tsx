@@ -50,6 +50,7 @@ export default function Register() {
         title: "Account created!",
         message: "You're ready to save orders, checkout, and manage your profile.",
         confirmLabel: "Set up my profile",
+        showClose: false,
         onConfirm: () => navigate("/profile"),
       });
     } catch (e) {

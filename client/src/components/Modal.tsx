@@ -5,6 +5,8 @@ type Dialog = {
   message: string;
   confirmLabel?: string;
   onConfirm?: () => void | Promise<void>;
+  onDismiss?: () => void;
+  showClose?: boolean;
   tone?: "default" | "danger";
 };
 
@@ -14,9 +16,16 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [working, setWorking] = useState(false);
 
+  const dismiss = () => {
+    if (working) return;
+    const onDismiss = dialog?.onDismiss;
+    setDialog(null);
+    onDismiss?.();
+  };
+
   const confirm = async () => {
     if (!dialog?.onConfirm) {
-      setDialog(null);
+      dismiss();
       return;
     }
 
@@ -29,6 +38,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const showClose = dialog?.showClose !== false;
+
   return (
     <ModalContext.Provider value={{ show: setDialog }}>
       {children}
@@ -36,7 +47,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         <div
           className="modal-backdrop"
           role="presentation"
-          onMouseDown={() => !working && setDialog(null)}
+          onMouseDown={() => (showClose ? dismiss() : undefined)}
         >
           <section
             role="dialog"
@@ -51,14 +62,16 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             </h2>
             <p className="mt-4 text-sm leading-6 text-[#786a76]">{dialog.message}</p>
             <div className="mt-7 flex flex-wrap justify-end gap-3">
-              <button
-                type="button"
-                className="btn-secondary"
-                disabled={working}
-                onClick={() => setDialog(null)}
-              >
-                Close
-              </button>
+              {showClose && (
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  disabled={working}
+                  onClick={dismiss}
+                >
+                  Close
+                </button>
+              )}
               {dialog.onConfirm && (
                 <button
                   type="button"

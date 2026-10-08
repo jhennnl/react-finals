@@ -16,7 +16,8 @@ npm run dev
 - API: http://localhost:8000/api  
 - Demo login: `aya@cakette.test` / `password123`  
 - Your admin: `magtotomb@students.nu-clark.edu.ph` / `merner123!`  
-- Your demo: `mernermagtoto55@gmail.com` / `merner123!`
+- Your demo: `mernermagtoto55@gmail.com` / `merner123!`  
+- Password reset: `/forgot-password` → verification code → new password (sessions cleared)
 
 ## Live demo flow (smooth path)
 

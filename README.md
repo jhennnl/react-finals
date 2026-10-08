@@ -190,7 +190,7 @@ Middleware order: request logger → routes → JSON 404 → error handler
 
 ## Known limitations
 
-- Auth tokens are in-memory sessions (API restart logs users out)
+- Auth sessions are stored in MongoDB (survive API restarts)
 - Cake images live under `client/src/assets` (optional; placeholders if missing)
 - Password reset is a stub (extra credit only)
 - Payments / cloud deploy not required

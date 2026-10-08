@@ -40,12 +40,13 @@ export default function Login() {
 
     try {
       await login(data);
+      const next = (location.state as { from?: string })?.from ?? "/";
       show({
         title: "Welcome back!",
         message: "Your account, profile, and saved orders are ready.",
         confirmLabel: "Continue",
-        onConfirm: () =>
-          navigate((location.state as { from?: string })?.from ?? "/profile"),
+        showClose: false,
+        onConfirm: () => navigate(next),
       });
     } catch (e) {
       setError(getApiError(e, "We couldn't log you in."));
