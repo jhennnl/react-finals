@@ -51,9 +51,16 @@ react-finals/
 2. Create a database user (username + password).
 3. Network Access → allow `0.0.0.0/0` for class demos (or your IP).
 4. Connect → Drivers → copy the SRV connection string.
-5. Put it in `server/.env` as `MONGO_URI` (database name `cakette`).
+5. Put it in `server/.env`:
 
-Local fallback: if Atlas/local Mongo is unavailable, the server can use an in-memory Mongo for demos. **For grading, use Atlas.**
+```env
+MONGO_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/cakette?retryWrites=true&w=majority
+ALLOW_MEMORY_FALLBACK=false
+```
+
+6. Confirm grading readiness: `GET http://localhost:8000/api/health` → `"gradingReady": true`.
+
+Local fallback: if Atlas/local Mongo is unavailable and `ALLOW_MEMORY_FALLBACK=true`, the server can use an in-memory Mongo for demos. **For grading, use Atlas and set `ALLOW_MEMORY_FALLBACK=false`.**
 
 ### 2. Server
 

@@ -1,15 +1,31 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { addOns, designs, fillings, flavors, sizes } from "../data";
 import type { CakeOption, Promotion } from "../types";
-import { api } from "../api";
+import { api, getApiError } from "../api";
 import { useCakes } from "../hooks/useCakes";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { usePageTitle } from "../hooks/usePageTitle";
+
+type QuoteResponse = {
+  cakeId: string;
+  cakeName: string;
+  size: CakeOption;
+  flavor: CakeOption;
+  filling: CakeOption;
+  design: CakeOption;
+  addOns: CakeOption[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  promoCode: string;
+  promoApplied: boolean;
+  promoMessage: string | null;
+};
 
 const schema = z.object({
   cakeId: z.string().min(1),
@@ -75,6 +91,10 @@ export default function Customize() {
   const { cakes, loading, error } = useCakes();
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [promoMessage, setPromoMessage] = useState("");
+  const [quote, setQuote] = useState<QuoteResponse | null>(null);
+  const [quoteError, setQuoteError] = useState("");
+  const [quoting, setQuoting] = useState(false);
+  const [validatingPromo, setValidatingPromo] = useState(false);
 
   const defaultCake = params.get("cake") || "";
 
@@ -100,8 +120,9 @@ export default function Customize() {
   });
 
   const values = watch();
-  const selectedAddOns = values.addOns || [];
+  const selectedAddOns = values.addOns ?? [];
   const promoCode = values.promoCode || "";
+  const addOnsKey = selectedAddOns.join(",");
 
   useEffect(() => {
     api.get("/promotions?active=true").then(({ data }) => setPromotions(data.promotions)).catch(() => undefined);
@@ -118,44 +139,78 @@ export default function Customize() {
 
   const cake = cakes.find((c) => c.id === values.cakeId) ?? cakes[0];
 
-  const subtotal = useMemo(() => {
-    if (!cake) return 0;
-    return (
-      findPrice(sizes, values.size) +
-      cake.basePrice +
-      findPrice(flavors, values.flavor) +
-      findPrice(fillings, values.filling) +
-      findPrice(designs, values.design) +
-      selectedAddOns.reduce((sum, n) => sum + findPrice(addOns, n), 0)
-    );
-  }, [values.size, values.flavor, values.filling, values.design, selectedAddOns, cake]);
+  useEffect(() => {
+    if (!values.cakeId || !values.size || !values.flavor || !values.filling || !values.design) return;
 
-  const promotion = promotions.find(
-    (p) => p.code.toLowerCase() === promoCode.trim().toLowerCase() && p.active
-  );
-  const discount =
-    promotion && subtotal >= promotion.minimum
-      ? promotion.type === "percent"
-        ? Math.round((subtotal * promotion.value) / 100)
-        : promotion.value
-      : 0;
-  const total = Math.max(0, subtotal - discount);
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setQuoting(true);
+      setQuoteError("");
+      api
+        .post(
+          "/orders/quote",
+          {
+            cakeId: values.cakeId,
+            size: values.size,
+            flavor: values.flavor,
+            filling: values.filling,
+            design: values.design,
+            addOns: addOnsKey ? addOnsKey.split(",") : [],
+            promoCode: promoCode.trim() || undefined,
+          },
+          { signal: controller.signal }
+        )
+        .then(({ data }) => {
+          setQuote(data);
+          if (data.promoMessage) setPromoMessage(data.promoMessage);
+        })
+        .catch((err) => {
+          if (controller.signal.aborted) return;
+          setQuote(null);
+          setQuoteError(getApiError(err, "Could not calculate the live quote."));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setQuoting(false);
+        });
+    }, 250);
 
-  const applyPromo = () => {
-    if (!promoCode) {
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [
+    values.cakeId,
+    values.size,
+    values.flavor,
+    values.filling,
+    values.design,
+    addOnsKey,
+    promoCode,
+  ]);
+
+  const subtotal = quote?.subtotal ?? 0;
+  const discount = quote?.discount ?? 0;
+  const total = quote?.total ?? 0;
+  const appliedPromo = quote?.promoCode || "";
+
+  const applyPromo = async () => {
+    if (!promoCode.trim()) {
       setPromoMessage("Enter a promotion code first.");
       return;
     }
-    if (!promotion) {
-      setPromoMessage("That promotion code is not available.");
-      return;
+    setValidatingPromo(true);
+    try {
+      const { data } = await api.post("/promotions/validate", {
+        code: promoCode.trim(),
+        subtotal,
+      });
+      setValue("promoCode", data.promotion.code, { shouldValidate: true });
+      setPromoMessage(`${data.promotion.label} applied to your order.`);
+    } catch (err) {
+      setPromoMessage(getApiError(err, "That promotion code is not available."));
+    } finally {
+      setValidatingPromo(false);
     }
-    if (subtotal < promotion.minimum) {
-      setPromoMessage(`This code requires a subtotal of at least ₱${promotion.minimum.toLocaleString()}.`);
-      return;
-    }
-    setPromoMessage(`${promotion.label} applied to your order.`);
-    setValue("promoCode", promotion.code, { shouldValidate: true });
   };
 
   const onSubmit = (data: FormValues) => {
@@ -169,7 +224,7 @@ export default function Customize() {
       subtotal: String(subtotal),
       discount: String(discount),
       total: String(total),
-      promo: promotion?.code ?? "",
+      promo: appliedPromo,
       instructions: data.specialInstructions ?? "",
     });
     navigate(`/pickup?${q.toString()}`);
@@ -340,8 +395,13 @@ export default function Customize() {
                   value={promoCode}
                   onChange={(e) => setValue("promoCode", e.target.value.toUpperCase())}
                 />
-                <button type="button" onClick={applyPromo} className="btn-secondary sm:w-36">
-                  Apply code
+                <button
+                  type="button"
+                  onClick={() => void applyPromo()}
+                  disabled={validatingPromo}
+                  className="btn-secondary sm:w-36 disabled:opacity-60"
+                >
+                  {validatingPromo ? "Checking…" : "Apply code"}
                 </button>
               </div>
               {promoMessage && (
@@ -368,7 +428,9 @@ export default function Customize() {
           </div>
 
           <aside className="h-fit rounded-[28px] bg-[#332532] p-6 text-white shadow-[0_22px_55px_rgba(43,29,50,.15)] lg:sticky lg:top-24">
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-[#f3b7cf]">LIVE ORDER SUMMARY</p>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-[#f3b7cf]">
+              LIVE ORDER SUMMARY · /orders/quote
+            </p>
             <div className="mt-5 flex items-center gap-4">
               <div className="h-20 w-20 overflow-hidden rounded-2xl bg-[#f9e3eb]">
                 <img src={cake.image} alt={cake.name} className="h-full w-full object-contain" />
@@ -387,44 +449,47 @@ export default function Customize() {
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Size</span>
-                <span>+₱{findPrice(sizes, values.size)}</span>
+                <span>+₱{(quote?.size.price ?? findPrice(sizes, values.size)).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Flavor</span>
-                <span>+₱{findPrice(flavors, values.flavor)}</span>
+                <span>+₱{(quote?.flavor.price ?? findPrice(flavors, values.flavor)).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Filling</span>
-                <span>+₱{findPrice(fillings, values.filling)}</span>
+                <span>+₱{(quote?.filling.price ?? findPrice(fillings, values.filling)).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60">Design</span>
-                <span>+₱{findPrice(designs, values.design)}</span>
+                <span>+₱{(quote?.design.price ?? findPrice(designs, values.design)).toLocaleString()}</span>
               </div>
-              {selectedAddOns.map((n) => (
-                <div key={n} className="flex justify-between">
-                  <span className="max-w-[180px] text-white/60">{n}</span>
-                  <span>+₱{findPrice(addOns, n)}</span>
-                </div>
-              ))}
+              {(quote?.addOns?.length ? quote.addOns : selectedAddOns.map((n) => ({ name: n, price: findPrice(addOns, n) }))).map(
+                (item) => (
+                  <div key={item.name} className="flex justify-between">
+                    <span className="max-w-[180px] text-white/60">{item.name}</span>
+                    <span>+₱{item.price.toLocaleString()}</span>
+                  </div>
+                )
+              )}
             </div>
+            {quoteError && <p className="mt-4 text-xs text-[#f4c3d6]">{quoteError}</p>}
             <div className="mt-5 flex justify-between text-sm">
               <span className="text-white/60">Subtotal</span>
-              <span>₱{subtotal.toLocaleString()}</span>
+              <span>{quoting && !quote ? "…" : `₱${subtotal.toLocaleString()}`}</span>
             </div>
             {discount > 0 && (
               <div className="mt-2 flex justify-between text-sm text-[#f4c3d6]">
-                <span>Discount · {promotion?.code}</span>
+                <span>Discount · {appliedPromo}</span>
                 <span>-₱{discount.toLocaleString()}</span>
               </div>
             )}
             <div className="mt-4 flex justify-between text-xl font-bold">
               <span>Total</span>
-              <span>₱{total.toLocaleString()}</span>
+              <span>{quoting && !quote ? "…" : `₱${total.toLocaleString()}`}</span>
             </div>
             <button
               type="submit"
-              disabled={!isValid}
+              disabled={!isValid || !quote || Boolean(quoteError)}
               className="mt-6 w-full rounded-full bg-[#e7a8be] px-5 py-3 font-bold text-[#332532] transition hover:bg-[#f1b8cc] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Choose pickup date

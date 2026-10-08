@@ -74,6 +74,24 @@ export async function seedDatabase() {
     loyaltyPoints: 12,
   });
 
+  await Customer.create({
+    name: "Merner Magtoto",
+    email: "magtotomb@students.nu-clark.edu.ph",
+    phone: "",
+    passwordHash: hashPassword("merner123!"),
+    role: "admin",
+    loyaltyPoints: 0,
+  });
+
+  await Customer.create({
+    name: "Merner Magtoto",
+    email: "mernermagtoto55@gmail.com",
+    phone: "",
+    passwordHash: hashPassword("merner123!"),
+    role: "customer",
+    loyaltyPoints: 0,
+  });
+
   const configs = [
     { cake: createdCakes[3], size: "8-inch", flavor: "Chocolate", filling: "Chocolate", design: "Y2K Pastel", addOns: ["Cake Topper"], promoCode: "WELCOME10", pickupDate: "2026-10-08", status: "In Production", customer: demo },
     { cake: createdCakes[1], size: "6-inch", flavor: "Vanilla", filling: "Vanilla Cream", design: "Minimalist", addOns: ["Custom Message"], promoCode: "", pickupDate: "2026-09-20", status: "Completed", customer: demo },
@@ -138,6 +156,8 @@ export async function seedDatabase() {
   console.log("Seed complete.");
   console.log("Demo login: aya@cakette.test / password123");
   console.log("Admin login: admin@cakette.test / admin123");
+  console.log("Admin login: magtotomb@students.nu-clark.edu.ph / merner123!");
+  console.log("Demo login: mernermagtoto55@gmail.com / merner123!");
 }
 
 async function seed() {

@@ -38,6 +38,17 @@ export async function resolveMongoUri(preferredUri) {
         `Could not connect to MongoDB Atlas (${error.message}). Check MONGO_URI, database user password, and Network Access (0.0.0.0/0 for demos).`
       );
     }
+
+    const allowMemory =
+      preferredUri === "memory" ||
+      String(process.env.ALLOW_MEMORY_FALLBACK || "true").toLowerCase() !== "false";
+
+    if (!allowMemory) {
+      throw new Error(
+        `Local MongoDB unavailable (${error.message}). Grading mode requires Atlas — set MONGO_URI to mongodb+srv://... and ALLOW_MEMORY_FALLBACK=false.`
+      );
+    }
+
     console.warn(
       `Local MongoDB unavailable (${error.message}). Falling back to mongodb-memory-server for local demo.`
     );

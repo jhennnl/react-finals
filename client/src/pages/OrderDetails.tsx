@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, getApiError } from "../api";
+import { useAuth } from "../auth";
 import { useCakes } from "../hooks/useCakes";
 import type { Order } from "../types";
 import StatusBadge from "../components/StatusBadge";
@@ -9,13 +10,15 @@ import ErrorState from "../components/ErrorState";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useModal } from "../components/Modal";
 
-const steps = ["Pending", "Confirmed", "In Production", "Ready for Pickup", "Completed"];
+const steps = ["Pending", "Confirmed", "In Production", "Ready for Pickup", "Completed"] as const;
 
 export default function OrderDetails() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [advancing, setAdvancing] = useState(false);
   const { cakes } = useCakes();
   const { show } = useModal();
   usePageTitle(order ? `Order ${order.id}` : "Order Details");
@@ -57,7 +60,9 @@ export default function OrderDetails() {
   }
 
   const cake = cakes.find((item) => item.id === order.cakeId);
-  const currentIndex = steps.indexOf(order.status);
+  const currentIndex = steps.indexOf(order.status as (typeof steps)[number]);
+  const nextStatus = currentIndex >= 0 && currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
+  const isAdmin = user?.role === "admin";
 
   const cancel = () =>
     show({
@@ -80,6 +85,31 @@ export default function OrderDetails() {
         }
       },
     });
+
+  const advanceStatus = () => {
+    if (!nextStatus) return;
+    show({
+      title: `Move to ${nextStatus}?`,
+      message: `This uses the studio status workflow (PATCH /orders/:id/status) to advance the order from ${order.status}.`,
+      confirmLabel: `Mark ${nextStatus}`,
+      onConfirm: async () => {
+        setAdvancing(true);
+        try {
+          const { data } = await api.patch(`/orders/${order.id}/status`, { status: nextStatus });
+          setOrder(data.order);
+          show({
+            title: "Status updated",
+            message: `Order is now ${data.order.status}.`,
+            confirmLabel: "Done",
+          });
+        } catch (e) {
+          setError(getApiError(e, "Could not update order status."));
+        } finally {
+          setAdvancing(false);
+        }
+      },
+    });
+  };
 
   return (
     <section className="py-14">
@@ -125,11 +155,27 @@ export default function OrderDetails() {
                 <p className="mt-2 text-sm">{order.specialInstructions}</p>
               </div>
             )}
-            {["Pending", "Confirmed"].includes(order.status) && (
-              <button onClick={cancel} className="btn-secondary mt-8 border-[#e4a1ad] text-[#a44255]">
-                Cancel order
-              </button>
-            )}
+            <div className="mt-8 flex flex-wrap gap-3">
+              {isAdmin && nextStatus && (
+                <button
+                  type="button"
+                  disabled={advancing}
+                  onClick={advanceStatus}
+                  className="btn-primary disabled:opacity-60"
+                >
+                  {advancing ? "Updating…" : `Advance to ${nextStatus}`}
+                </button>
+              )}
+              {["Pending", "Confirmed"].includes(order.status) && (
+                <button
+                  type="button"
+                  onClick={cancel}
+                  className="btn-secondary border-[#e4a1ad] text-[#a44255]"
+                >
+                  Cancel order
+                </button>
+              )}
+            </div>
           </div>
           <aside className="soft-card h-fit overflow-hidden">
             {cake && (

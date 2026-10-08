@@ -65,6 +65,7 @@ app.get("/api/health", (req, res) => {
     database: {
       status: dbStatus,
       mode: isUsingMemoryMongo() ? "memory" : "atlas-or-local",
+      gradingReady: dbState === 1 && !isUsingMemoryMongo(),
     },
   });
 });
