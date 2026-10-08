@@ -36,8 +36,17 @@ cakette is more than a CRUD catalog. Orders compute live pricing and discounts, 
 
 ```
 react-finals/
-├── client/          # React Vite app
-├── server/          # Express + Mongoose API
+├── client/              # React Vite + TypeScript frontend
+│   ├── .env.example
+│   └── src/
+├── server/              # Express + Mongoose API
+│   ├── .env.example
+│   ├── models/
+│   ├── routes/
+│   └── middleware/
+├── docs/screenshots/    # README screenshots
+├── start-defense.bat    # Optional: local demo launcher
+├── open-error-tabs.bat  # Optional: 404 / health tabs
 ├── README.md
 ├── DEFENSE.md
 └── .env.example
@@ -86,12 +95,20 @@ Demo accounts after seed:
 
 ```bash
 cd client
-echo VITE_API_URL=http://localhost:8000/api > .env
+cp .env.example .env
 npm install
 npm run dev
 ```
 
 App: `http://localhost:5173` (Vite also proxies `/api` → port 8000)
+
+### Quick local demo (Windows)
+
+```bat
+start-defense.bat
+```
+
+Opens the app + API and the main rubric UI tabs. For 404 / health tabs only, run `open-error-tabs.bat`.
 
 ## Required environment variables
 

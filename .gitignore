@@ -6,3 +6,12 @@ client/.env
 *.log
 .DS_Store
 server/store.json
+
+# Accidental root-level Vite copy — canonical frontend is client/
+/src/
+/index.html
+/vite.config.ts
+/tsconfig.json
+/tsconfig.app.json
+/tsconfig.node.json
+/package-lock.json
