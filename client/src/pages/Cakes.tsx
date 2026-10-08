@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import CakeCard from "../components/CakeCard";
 import SectionHeading from "../components/SectionHeading";
 import LoadingState from "../components/LoadingState";

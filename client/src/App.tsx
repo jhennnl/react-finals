@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Cakes from "./pages/Cakes";
@@ -20,6 +20,7 @@ import Dashboard from "./pages/Dashboard";
 import ManageCakes from "./pages/ManageCakes";
 import ManagePromotions from "./pages/ManagePromotions";
 import Reviews from "./pages/Reviews";
+import NotFound from "./pages/NotFound";
 import RequireAuth from "./components/RequireAuth";
 import RequireAdmin from "./components/RequireAdmin";
 
@@ -33,22 +34,88 @@ export default function App() {
           <Route path="/cakes/:id" element={<CakeDetails />} />
           <Route path="/customize" element={<Customize />} />
           <Route path="/pickup" element={<PickupAvailability />} />
-          <Route path="/summary" element={<RequireAuth><OrderSummary /></RequireAuth>} />
-          <Route path="/confirmation" element={<RequireAuth><Confirmation /></RequireAuth>} />
-          <Route path="/orders" element={<RequireAuth><MyOrders /></RequireAuth>} />
-          <Route path="/orders/:id" element={<RequireAuth><OrderDetails /></RequireAuth>} />
-          <Route path="/history" element={<RequireAuth><OrderHistory /></RequireAuth>} />
-          <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-          <Route path="/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
-          <Route path="/manage/cakes" element={<RequireAdmin><ManageCakes /></RequireAdmin>} />
-          <Route path="/manage/promotions" element={<RequireAdmin><ManagePromotions /></RequireAdmin>} />
+
+          <Route
+            path="/summary"
+            element={
+              <RequireAuth>
+                <OrderSummary />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/confirmation"
+            element={
+              <RequireAuth>
+                <Confirmation />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <RequireAuth>
+                <MyOrders />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <RequireAuth>
+                <OrderDetails />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <RequireAuth>
+                <OrderHistory />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/dashboard"
+            element={
+              <RequireAdmin>
+                <Dashboard />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/manage/cakes"
+            element={
+              <RequireAdmin>
+                <ManageCakes />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/manage/promotions"
+            element={
+              <RequireAdmin>
+                <ManagePromotions />
+              </RequireAdmin>
+            }
+          />
+
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/about" element={<About />} />
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

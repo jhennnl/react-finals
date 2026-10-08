@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { api, getApiError } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
+import StatusBadge from "../components/StatusBadge";
 import { usePageTitle } from "../hooks/usePageTitle";
-
-type Order = { id: string; status: string; total: number; pickupDate: string };
+import type { Order } from "../types";
 
 export default function Confirmation() {
   usePageTitle("Order Confirmation");
@@ -54,7 +54,7 @@ export default function Confirmation() {
               </div>
               <div className="flex justify-between py-4">
                 <span className="text-sm text-[#786a76]">Status</span>
-                <span className="pill bg-[#f3d99a] text-[#8a6810]">{order?.status ?? "Pending"}</span>
+                <StatusBadge status={order?.status ?? "Pending"} />
               </div>
               <div className="flex justify-between border-t border-[#eadde2] pt-4">
                 <span className="text-sm text-[#786a76]">Pickup date</span>

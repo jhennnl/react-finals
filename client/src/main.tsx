@@ -7,6 +7,10 @@ import { ModalProvider } from "./components/Modal";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider><ModalProvider><App /></ModalProvider></AuthProvider>
+    <AuthProvider>
+      <ModalProvider>
+        <App />
+      </ModalProvider>
+    </AuthProvider>
   </StrictMode>
 );

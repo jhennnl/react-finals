@@ -31,9 +31,27 @@ export default function About() {
         />
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
-          <div className="pastel-panel-pink rounded-[28px] p-7"><p className="section-label">CUSTOM</p><h2 className="mt-3 font-display text-3xl">Built around your choices.</h2><p className="mt-3 text-sm leading-6 text-[#765d6d]">Your cake starts with a design, then becomes a configuration made from your selected options.</p></div>
-          <div className="pastel-panel-lilac rounded-[28px] p-7"><p className="section-label">CLEAR</p><h2 className="mt-3 font-display text-3xl">Know what you are ordering.</h2><p className="mt-3 text-sm leading-6 text-[#665b76]">The summary keeps the selected options and calculated total visible before submission.</p></div>
-          <div className="pastel-panel-green rounded-[28px] p-7"><p className="section-label">PLANNED</p><h2 className="mt-3 font-display text-3xl">Pick a realistic date.</h2><p className="mt-3 text-sm leading-6 text-[#5b7055]">Production capacity is part of the ordering flow instead of being an afterthought.</p></div>
+          <div className="pastel-panel-pink rounded-[28px] p-7">
+            <p className="section-label">CUSTOM</p>
+            <h2 className="mt-3 font-display text-3xl">Built around your choices.</h2>
+            <p className="mt-3 text-sm leading-6 text-[#765d6d]">
+              Your cake starts with a design, then becomes a configuration made from your selected options.
+            </p>
+          </div>
+          <div className="pastel-panel-lilac rounded-[28px] p-7">
+            <p className="section-label">CLEAR</p>
+            <h2 className="mt-3 font-display text-3xl">Know what you are ordering.</h2>
+            <p className="mt-3 text-sm leading-6 text-[#665b76]">
+              The summary keeps the selected options and calculated total visible before submission.
+            </p>
+          </div>
+          <div className="pastel-panel-green rounded-[28px] p-7">
+            <p className="section-label">PLANNED</p>
+            <h2 className="mt-3 font-display text-3xl">Pick a realistic date.</h2>
+            <p className="mt-3 text-sm leading-6 text-[#5b7055]">
+              Production capacity is part of the ordering flow instead of being an afterthought.
+            </p>
+          </div>
         </div>
 
         <div className="mt-20">
@@ -68,9 +86,18 @@ export default function About() {
 
         <div className="mt-20 rounded-[32px] bg-[#332532] p-8 text-white md:p-12">
           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#e7a8be]">READY TO CREATE</p>
-          <h2 className="mt-3 max-w-2xl font-display text-4xl md:text-5xl">Start with a design. Make it yours.</h2>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-white/65">Choose a starting cake and let the builder handle the option-by-option price calculation.</p>
-          <Link to="/cakes" className="mt-7 inline-flex rounded-full bg-[#f9e3eb] px-5 py-3 text-sm font-bold text-[#332532]">Explore cakes →</Link>
+          <h2 className="mt-3 max-w-2xl font-display text-4xl md:text-5xl">
+            Start with a design. Make it yours.
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/65">
+            Choose a starting cake and let the builder handle the option-by-option price calculation.
+          </p>
+          <Link
+            to="/cakes"
+            className="mt-7 inline-flex rounded-full bg-[#f9e3eb] px-5 py-3 text-sm font-bold text-[#332532]"
+          >
+            Explore cakes →
+          </Link>
         </div>
       </div>
     </section>
